@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		259851071E7D8B0B008B02EC /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 259851061E7D8B0B008B02EC /* main.c */; };
+		2598510F1E7D8B71008B02EC /* CommunicateFunction.c in Sources */ = {isa = PBXBuildFile; fileRef = 2598510D1E7D8B71008B02EC /* CommunicateFunction.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		259851031E7D8B0B008B02EC /* ComputerNetworkProjectOne */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ComputerNetworkProjectOne; sourceTree = BUILT_PRODUCTS_DIR; };
 		259851061E7D8B0B008B02EC /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		2598510D1E7D8B71008B02EC /* CommunicateFunction.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CommunicateFunction.c; sourceTree = "<group>"; };
+		2598510E1E7D8B71008B02EC /* CommunicateFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommunicateFunction.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +61,8 @@
 			isa = PBXGroup;
 			children = (
 				259851061E7D8B0B008B02EC /* main.c */,
+				2598510D1E7D8B71008B02EC /* CommunicateFunction.c */,
+				2598510E1E7D8B71008B02EC /* CommunicateFunction.h */,
 			);
 			path = ComputerNetworkProjectOne;
 			sourceTree = "<group>";
@@ -120,6 +125,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				259851071E7D8B0B008B02EC /* main.c in Sources */,
+				2598510F1E7D8B71008B02EC /* CommunicateFunction.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
