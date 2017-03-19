@@ -8,7 +8,13 @@
 
 #include "CommunicateFunction.h"
 
-void download(const char *local_file_name,const int socket_fd){
+void download(char *local_file_name,const int socket_fd){
+    while (local_file_name == NULL || strlen(local_file_name) == 0) {
+        printf("Please input save name:");
+        local_file_name = (char*)malloc(256);
+        fgets(local_file_name, 255, stdin);
+        local_file_name[strlen(local_file_name) - 1] = '\0';
+    }
     int file_fd = open(local_file_name, O_WRONLY|O_CREAT,FILE_PERMISSION);
     uint32_t file_size;
     read(socket_fd, &file_size, sizeof(uint32_t));
@@ -114,7 +120,6 @@ void upload(const char *full_path_name,const int socket_fd){
     stat(full_path_name, &file_info);
     uint32_t file_real_size = (uint32_t)file_info.st_size;
     uint32_t file_size = htonl(file_real_size);
-    uint32_t delta = file_real_size/PROCESS_BAR_AMOUNT;
     ssize_t filename_size = strlen(file_name);
     int file_fd = open(full_path_name, O_RDONLY);
     ssize_t part_size = 2 * sizeof(uint8_t) + sizeof(uint32_t) + filename_size;
@@ -125,12 +130,11 @@ void upload(const char *full_path_name,const int socket_fd){
     memcpy(part_of_data + 2 + sizeof(uint32_t), file_name, filename_size);
     write(socket_fd, part_of_data, part_size);
     char buff[512];
-    ssize_t read_size,total_size = 0,current = 0;
+    ssize_t read_size,total_size = 0;
     printf("Uploading...\n");
     while ((read_size = read(file_fd, buff, sizeof(buff))) > 0) {
         write(socket_fd, buff, read_size);
         total_size += read_size;
-        current = (total_size/delta) > current ? (total_size/delta) : current;
     }
     close(file_fd);
     free(file_name);

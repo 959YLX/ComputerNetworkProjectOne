@@ -50,8 +50,10 @@ void start(char *ip,int port){
         }
         char command[256];
         char *temp;
-        printf("> ");
-        fgets(command , 255, stdin);
+        do{
+            printf("> ");
+            fgets(command , 255, stdin);
+        }while(!strcmp(command, "\n"));
         command[strlen(command) - 1] = '\0';
         temp = strtok(command, DELIM);
         if (!strcmp(temp, LIST)) {

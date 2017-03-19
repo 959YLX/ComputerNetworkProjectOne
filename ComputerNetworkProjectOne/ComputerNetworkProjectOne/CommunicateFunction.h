@@ -46,7 +46,7 @@
 
 #endif /* CommunicateFunction_h */
 
-void download(const char *local_file_name,const int socket_fd);
+void download(char *local_file_name,const int socket_fd);
 void send_download_request(const char *server_file_name,const int socket_fd);
 void get_file_list(const int socket_fd);
 char* catch_error(const int socket_fd);
