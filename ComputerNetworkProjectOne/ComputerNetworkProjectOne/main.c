@@ -33,10 +33,13 @@ void start(char *ip,int port){
         char command[256];
         char *temp;
         printf("> ");
-        scanf("%s",command);
-        if (!strcmp(command, LIST)) {
+        fgets(command , 255, stdin);
+        //strcmp(command, LIST)
+        command[strlen(command) - 1] = '\0';
+        temp = strtok(command, DELIM);
+        if (!strcmp(temp, LIST)) {
             get_file_list(socket_fd);
-        }else if (!strcmp(command, DOWNLOAD)){
+        }else if (!strcmp(temp, DOWNLOAD)){
             scanf("%s",command);
             send_download_request(temp, socket_fd);
             scanf("%s",command);
