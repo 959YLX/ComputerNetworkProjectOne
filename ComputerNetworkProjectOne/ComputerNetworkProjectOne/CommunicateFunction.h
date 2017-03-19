@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/select.h>
+#include <errno.h>
 
 #define DOWNLOAD_TYPE 0
 #define LIST_TYPE 1
@@ -40,6 +41,9 @@
 
 #define PROCESS_BAR_AMOUNT 50
 
+#define OVERTIME 5
+
+
 #endif /* CommunicateFunction_h */
 
 void download(const char *local_file_name,const int socket_fd);
@@ -49,4 +53,4 @@ char* catch_error(const int socket_fd);
 char* catch_success(const int socket_fd);
 void analyse_response(const int socket_fd,char *fileName);
 void upload(const char *full_path_name,const int socket_fd);
-int get_connection(const char *IP,const int PORT);
+int get_connection(const char *IP,const int PORT,BOOL first);

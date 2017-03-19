@@ -19,14 +19,9 @@ void download(const char *local_file_name,const int socket_fd){
     char cache[FILE_CACHE_SIZE];
     printf("[");
     fflush(stdout);
-    while (YES) {
-        if (surplus_size == 0) {
-            break;
-        }
+    while (surplus_size != 0) {
         receive_size = read(socket_fd, cache, (surplus_size <= FILE_CACHE_SIZE ? surplus_size : FILE_CACHE_SIZE) );
         write(file_fd, cache, receive_size);
-        
-        
         surplus_size = (surplus_size >= receive_size ? surplus_size - receive_size : 0);
         temp = (int)(file_size - surplus_size)/delta;
         current = temp > current ? temp : current;
@@ -35,7 +30,6 @@ void download(const char *local_file_name,const int socket_fd){
             fflush(stdout);
             location++;
         }
-
     }
     printf("]\n");
     fflush(stdout);
@@ -92,25 +86,27 @@ void analyse_response(const int socket_fd,char *fileName){
             analyse_response(socket_fd, NULL);
             break;
         }
-            
         case ERROR_TYPE:{
             char *error_info = catch_error(socket_fd);
             printf("%s",error_info);
             break;
         }
-            
         case SUCCESS_TYPE:{
             char *success_info = catch_success(socket_fd);
             printf("%s",success_info);
             break;
         }
-            
         default:
+            printf("Receive error type\n");
             break;
     }
 }
 
 void upload(const char *full_path_name,const int socket_fd){
+    if (access(full_path_name, F_OK)) {
+        printf("%s is not fount\n",full_path_name);
+        return;
+    }
     char *temp = strrchr(full_path_name, '/');
     char *file_name = (char*)malloc(strlen(temp) - 1);
     strcpy(file_name, temp + 1);
@@ -129,32 +125,57 @@ void upload(const char *full_path_name,const int socket_fd){
     memcpy(part_of_data + 2 + sizeof(uint32_t), file_name, filename_size);
     write(socket_fd, part_of_data, part_size);
     char buff[512];
-    ssize_t read_size,total_size = 0,current = 0,location = 0;
-    printf("[");
-    fflush(stdout);
+    ssize_t read_size,total_size = 0,current = 0;
+    printf("Uploading...\n");
     while ((read_size = read(file_fd, buff, sizeof(buff))) > 0) {
         write(socket_fd, buff, read_size);
         total_size += read_size;
         current = (total_size/delta) > current ? (total_size/delta) : current;
-        while (current > location) {
-            printf("=");
-            fflush(stdout);
-            location++;
-        }
     }
-    printf("]\n");
     close(file_fd);
     free(file_name);
     free(part_of_data);
 }
 
-int get_connection(const char *IP,const int PORT){
+int get_connection(const char *IP,const int PORT,BOOL first){
+    if (first) printf("Star to connect server  %s:%d\n",IP,PORT);
     int socked_fd = socket(AF_INET, SOCK_STREAM, 0);
+    struct timeval time;
     struct sockaddr_in socket_addr;
+    time.tv_sec = OVERTIME;
+    time.tv_usec = 0;
     socket_addr.sin_family = AF_INET;
     socket_addr.sin_port = htons(PORT);
     socket_addr.sin_addr.s_addr = inet_addr(IP);
     socket_addr.sin_len = sizeof(struct sockaddr_in);
-    connect(socked_fd, (struct sockaddr*)&socket_addr, sizeof(socket_addr));
-    return socked_fd;
+    int status = fcntl(socked_fd, F_GETFL,0);
+    fcntl(socked_fd, F_SETFL,(status | O_NONBLOCK));
+    if(!connect(socked_fd, (struct sockaddr*)&socket_addr, sizeof(socket_addr))){
+        if(first) printf("Connect successfully\n");
+        return socked_fd;
+    }
+    
+    if (errno != EINPROGRESS) {
+        printf("Connect failed :%s\n",strerror(errno));
+    }else{
+        fd_set wset,rset;
+        __DARWIN_FD_ZERO(&wset);
+        __DARWIN_FD_ZERO(&rset);
+        __DARWIN_FD_SET(socked_fd, &wset);
+        __DARWIN_FD_SET(socked_fd, &rset);
+        int result = select(socked_fd + 1, &rset, &wset, NULL, &time);
+        if (result < 0) {
+            printf("Network error when connect\n");
+        }else if(result == 0){
+            printf("Timeout...\n");
+        }else if(result == 1){
+            if (__DARWIN_FD_ISSET(socked_fd, &wset)) {
+                fcntl(socked_fd, F_SETFL,(status & ~O_NONBLOCK));
+                if(first) printf("Connect successfully\n");
+                return socked_fd;
+            }
+            printf("Connect failed :%s\n",strerror(errno));
+        }
+    }
+    return 0;
 }
